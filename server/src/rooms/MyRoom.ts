@@ -1,4 +1,5 @@
 import { Room, Client } from 'colyseus'
+import { createHeadlessGame } from '../headlessGame'
 import {
   FieldState,
   PlayerSide,
@@ -9,8 +10,13 @@ import {
 export class MyRoom extends Room<FieldState> {
   maxClients = 2
 
+  game: Phaser.Game
+
   onCreate(options: any) {
     this.setState(new FieldState())
+
+    this.game = createHeadlessGame()
+    this.game.events.on('update', this.onGameUpdate.bind(this))
 
     this.onMessage('move', (client, { x, y }) => {
       const player = this.getPlayerBySessionId(client.sessionId)
@@ -33,6 +39,10 @@ export class MyRoom extends Room<FieldState> {
     player.name = 'something'
 
     this.state.players[player.side] = player
+  }
+
+  onGameUpdate(info: any) {
+    console.log(info)
   }
 
   onLeave(client: Client, consented: boolean) {

@@ -33,8 +33,14 @@
   "dependencies": {
     "@colyseus/arena": "^0.14.20",
     "@colyseus/monitor": "^0.14.20",
+    "@types/jsdom": "^16.2.14",
+    "@types/jsdom-global": "^3.0.2",
+    "canvas": "^2.9.3",
     "colyseus": "^0.14.20",
     "cors": "^2.8.5",
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "jsdom": "^20.0.0",
+    "jsdom-global": "^3.0.2",
+    "phaser": "^3.53.1"
   }
 }

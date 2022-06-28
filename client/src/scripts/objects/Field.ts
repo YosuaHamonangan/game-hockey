@@ -148,4 +148,14 @@ export default class Field extends Phaser.GameObjects.Container {
   public setStickColor(playerSide: PlayerSide, color: number) {
     this.sticks[playerSide].setTint(color)
   }
+
+  public getFieldInfo() {
+    return {
+      puck: {
+        x: this.puck.x,
+        y: this.puck.y,
+      },
+      sticks: this.sticks.map(({ x, y }) => ({ x, y })),
+    }
+  }
 }
