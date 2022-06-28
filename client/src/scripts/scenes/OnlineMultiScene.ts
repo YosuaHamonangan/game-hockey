@@ -2,6 +2,7 @@ import FpsText from '../objects/fpsText'
 import Field from '../objects/Field'
 import { client, Colyseus } from '../utils/colyseus'
 import { FieldState, PlayerSide } from '../utils/fieldState'
+import Toast from '../objects/Toast'
 
 enum SceneState {
   preparing,
@@ -16,6 +17,7 @@ export default class OnlineMultiScene extends Phaser.Scene {
   private playerSide: PlayerSide
   private opponentSide: PlayerSide
   private state = SceneState.preparing
+  private toast: Toast
 
   constructor() {
     super({ key: 'OnlineMultiScene' })
@@ -26,6 +28,9 @@ export default class OnlineMultiScene extends Phaser.Scene {
       new Field(this, this.cameras.main.centerX, this.cameras.main.centerY)
     )
     this.setState(SceneState.preparing)
+
+    this.toast = this.add.existing(new Toast(this))
+    this.toast.hide()
 
     this.fpsText = new FpsText(this)
 
@@ -70,7 +75,10 @@ export default class OnlineMultiScene extends Phaser.Scene {
   }
 
   setState(state: SceneState) {
+    const prvState = this.state
     this.state = state
+
+    this.onStateChange(prvState, state)
   }
 
   start() {
@@ -83,6 +91,27 @@ export default class OnlineMultiScene extends Phaser.Scene {
       const { x, y } = this.room.state.players[this.opponentSide]
       if (x === undefined) return
       this.field.setStickPosition(this.opponentSide, x, y)
+    }
+  }
+
+  onStateChange(prvState: SceneState, newState: SceneState) {
+    console.log(prvState, newState)
+    switch (prvState) {
+      case SceneState.waitingPlayer:
+        this.toast.hide()
+        break
+
+      default:
+        break
+    }
+
+    switch (newState) {
+      case SceneState.waitingPlayer:
+        this.toast.show('Waiting for player')
+        break
+
+      default:
+        break
     }
   }
 }
