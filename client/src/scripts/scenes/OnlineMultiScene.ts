@@ -40,7 +40,7 @@ export default class OnlineMultiScene extends Phaser.Scene {
 
     this.events.on('hit-puck', (data) => {
       if (data.side !== this.playerSide) return
-      this.room.send('puck', data)
+      // this.room.send('puck', data)
     })
 
     this.joinRoom()
@@ -88,14 +88,20 @@ export default class OnlineMultiScene extends Phaser.Scene {
 
   update() {
     if (this.state === SceneState.playing) {
-      const { x, y } = this.room.state.players[this.opponentSide]
-      if (x === undefined) return
-      this.field.setStickPosition(this.opponentSide, x, y)
+      const puck = this.room.state.puck
+      this.field.puck.x = puck.x
+      this.field.puck.y = puck.y
+
+      const player = this.room.state.players[this.playerSide]
+      this.field.setStickPosition(this.playerSide, player.x, player.y)
+
+      const opponent = this.room.state.players[this.opponentSide]
+      if (opponent.x === undefined) return
+      this.field.setStickPosition(this.opponentSide, opponent.x, opponent.y)
     }
   }
 
   onStateChange(prvState: SceneState, newState: SceneState) {
-    console.log(prvState, newState)
     switch (prvState) {
       case SceneState.waitingPlayer:
         this.toast.hide()

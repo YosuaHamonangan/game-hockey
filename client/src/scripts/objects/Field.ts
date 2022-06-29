@@ -1,6 +1,7 @@
 import Puck from './Puck'
 import Stick from './Stick'
 import { PlayerSide } from '../utils/fieldState'
+import { FieldInfo } from '../interfaces/Field'
 
 const GOAL_WIDTH = 200
 const GOAL_DEPTH = 30
@@ -49,14 +50,14 @@ export default class Field extends Phaser.GameObjects.Container {
     )
     this.add(stick)
 
-    this.scene.physics.add.collider(this.puck, stick, () => {
-      const data = {
-        side,
-        velX: this.puck.body.velocity.x,
-        velY: this.puck.body.velocity.y,
-      }
-      this.scene.events.emit('hit-puck', data)
-    })
+    // this.scene.physics.add.collider(this.puck, stick, () => {
+    //   const data = {
+    //     side,
+    //     velX: this.puck.body.velocity.x,
+    //     velY: this.puck.body.velocity.y,
+    //   }
+    //   this.scene.events.emit('hit-puck', data)
+    // })
     this.sticks[side] = stick
   }
 
@@ -149,7 +150,7 @@ export default class Field extends Phaser.GameObjects.Container {
     this.sticks[playerSide].setTint(color)
   }
 
-  public getFieldInfo() {
+  public getFieldInfo(): FieldInfo {
     return {
       puck: {
         x: this.puck.x,

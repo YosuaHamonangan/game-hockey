@@ -41,8 +41,16 @@ export class MyRoom extends Room<FieldState> {
     this.state.players[player.side] = player
   }
 
-  onGameUpdate(info: any) {
-    console.log(info)
+  onGameUpdate(info: FieldInfo) {
+    const { puck, players } = this.state
+
+    puck.x = info.puck.x
+    puck.y = info.puck.y
+
+    players.forEach((player, side) => {
+      player.x = info.sticks[side].x
+      player.y = info.sticks[side].y
+    })
   }
 
   onLeave(client: Client, consented: boolean) {

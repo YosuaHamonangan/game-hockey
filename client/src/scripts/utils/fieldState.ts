@@ -9,6 +9,11 @@ export function getOppositeSide(side: PlayerSide): PlayerSide {
   return side === PlayerSide.right ? PlayerSide.left : PlayerSide.right
 }
 
+export class PuckState extends Schema {
+  @type('number') x: number
+  @type('number') y: number
+}
+
 export class PlayerState extends Schema {
   @type('boolean') connected: boolean
   @type('string') name: string
@@ -19,5 +24,6 @@ export class PlayerState extends Schema {
 }
 
 export class FieldState extends Schema {
+  @type(PuckState) puck = new PuckState()
   @type([PlayerState]) players = new ArraySchema<PlayerState>()
 }
