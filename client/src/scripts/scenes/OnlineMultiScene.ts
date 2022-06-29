@@ -25,7 +25,12 @@ export default class OnlineMultiScene extends Phaser.Scene {
 
   create() {
     this.field = this.add.existing(
-      new Field(this, this.cameras.main.centerX, this.cameras.main.centerY)
+      new Field(
+        this,
+        this.cameras.main.centerX,
+        this.cameras.main.centerY,
+        false
+      )
     )
     this.setState(SceneState.preparing)
 
@@ -92,8 +97,8 @@ export default class OnlineMultiScene extends Phaser.Scene {
       this.field.puck.x = puck.x
       this.field.puck.y = puck.y
 
-      const player = this.room.state.players[this.playerSide]
-      this.field.setStickPosition(this.playerSide, player.x, player.y)
+      // const player = this.room.state.players[this.playerSide]
+      // this.field.setStickPosition(this.playerSide, player.x, player.y)
 
       const opponent = this.room.state.players[this.opponentSide]
       if (opponent.x === undefined) return

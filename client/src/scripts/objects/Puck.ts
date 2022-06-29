@@ -5,14 +5,33 @@ export default class Puck extends Phaser.Physics.Arcade.Sprite {
   static radius = Puck.size / 2
   body: Phaser.Physics.Arcade.Body
 
-  constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, 'puck')
+  constructor(
+    private field: Field,
+    x: number,
+    y: number,
+    physicsActive: boolean
+  ) {
+    super(field.scene, x, y, 'puck')
+    if (physicsActive) this.initPhysics()
+    this.setScale(Puck.size / this.width)
+  }
 
-    scene.physics.add.existing(this)
+  initPhysics() {
+    this.scene.physics.add.existing(this)
     this.body.setCircle(this.width / 2)
     this.setBounce(1)
     this.setMaxVelocity(2000)
     this.setCollideWorldBounds(true)
-    this.setScale(Puck.size / this.width)
+
+    const { field } = this
+
+    this.body.setBoundsRectangle(
+      new Phaser.Geom.Rectangle(
+        field.x - field.bg.width / 2 - Field.GOAL_DEPTH,
+        field.y - field.height / 2,
+        field.width + Field.GOAL_DEPTH * 2,
+        field.height
+      )
+    )
   }
 }

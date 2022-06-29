@@ -24,6 +24,7 @@ export class MyRoom extends Room<FieldState> {
 
       player.x = x
       player.y = y
+      this.game.events.emit('move', player)
     })
   }
 

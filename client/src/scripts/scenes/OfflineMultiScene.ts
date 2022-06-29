@@ -12,7 +12,12 @@ export default class OfflineMultiScene extends Phaser.Scene {
 
   create() {
     this.field = this.add.existing(
-      new Field(this, this.cameras.main.centerX, this.cameras.main.centerY)
+      new Field(
+        this,
+        this.cameras.main.centerX,
+        this.cameras.main.centerY,
+        true
+      )
     )
 
     this.fpsText = new FpsText(this)

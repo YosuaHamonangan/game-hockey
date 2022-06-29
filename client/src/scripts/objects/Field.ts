@@ -3,10 +3,12 @@ import Stick from './Stick'
 import { PlayerSide } from '../utils/fieldState'
 import { FieldInfo } from '../interfaces/Field'
 
-const GOAL_WIDTH = 200
-const GOAL_DEPTH = 30
-
 export default class Field extends Phaser.GameObjects.Container {
+  static WIDTH = 1000
+  static HEIGHT = 600
+  static GOAL_WIDTH = 200
+  static GOAL_DEPTH = 30
+
   bg: Phaser.GameObjects.Image
   walls: Phaser.Physics.Arcade.Image[]
   middleWall: Phaser.Physics.Arcade.Image
@@ -15,16 +17,22 @@ export default class Field extends Phaser.GameObjects.Container {
   sideGoals: Phaser.Physics.Arcade.Image[]
   goals: Phaser.Physics.Arcade.Image[]
 
-  constructor(scene: Phaser.Scene, x: number, y: number) {
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    physicsActive: boolean
+  ) {
     super(scene, x, y)
 
+    this.setSize(Field.WIDTH, Field.HEIGHT)
+
     this.bg = scene.add.image(0, 0, 'field')
+    this.bg.setSize(Field.WIDTH, Field.HEIGHT)
     this.add(this.bg)
-    this.width = this.bg.width
-    this.height = this.bg.height
 
     this.createGoals()
-    this.createPuck()
+    this.createPuck(physicsActive)
 
     this.sticks = []
     this.createStick(PlayerSide.right)
@@ -50,27 +58,19 @@ export default class Field extends Phaser.GameObjects.Container {
     )
     this.add(stick)
 
-    // this.scene.physics.add.collider(this.puck, stick, () => {
-    //   const data = {
-    //     side,
-    //     velX: this.puck.body.velocity.x,
-    //     velY: this.puck.body.velocity.y,
-    //   }
-    //   this.scene.events.emit('hit-puck', data)
-    // })
+    this.scene.physics.add.collider(this.puck, stick, () => {
+      const data = {
+        side,
+        velX: this.puck.body.velocity.x,
+        velY: this.puck.body.velocity.y,
+      }
+      this.scene.events.emit('hit-puck', data)
+    })
     this.sticks[side] = stick
   }
 
-  private createPuck() {
-    const puck = new Puck(this.scene, 0, 0)
-    puck.body.setBoundsRectangle(
-      new Phaser.Geom.Rectangle(
-        this.x - this.bg.width / 2 - GOAL_DEPTH,
-        this.y - this.height / 2,
-        this.width + GOAL_DEPTH * 2,
-        this.height
-      )
-    )
+  private createPuck(physicsActive: boolean) {
+    const puck = new Puck(this, 0, 0, physicsActive)
     this.add(puck)
 
     this.sideGoals.forEach((goal) => {
@@ -88,12 +88,12 @@ export default class Field extends Phaser.GameObjects.Container {
   }
 
   private createGoals() {
-    const sideWidth = (this.height - GOAL_WIDTH) / 2
+    const sideWidth = (this.height - Field.GOAL_WIDTH) / 2
     let x: number, y: number
 
     // Side goal wall
-    x = this.width / 2 + GOAL_DEPTH / 2
-    y = (GOAL_WIDTH + sideWidth) / 2
+    x = this.width / 2 + Field.GOAL_DEPTH / 2
+    y = (Field.GOAL_WIDTH + sideWidth) / 2
     const sideGoalsPos = [
       // Right Top
       [this.x + x, this.y - y],
@@ -106,7 +106,7 @@ export default class Field extends Phaser.GameObjects.Container {
     ]
     this.sideGoals = sideGoalsPos.map(([x, y]) => {
       const goal = this.scene.physics.add.staticImage(x, y, '')
-      goal.setBodySize(GOAL_DEPTH, sideWidth)
+      goal.setBodySize(Field.GOAL_DEPTH, sideWidth)
       goal.setVisible(false)
       this.add(goal)
       return goal
@@ -114,7 +114,7 @@ export default class Field extends Phaser.GameObjects.Container {
 
     // middle
     const thickness = 10
-    x = this.width / 2 + GOAL_DEPTH
+    x = this.width / 2 + Field.GOAL_DEPTH
     y = 0
     const goalsPos = [
       [x, y],
@@ -122,7 +122,7 @@ export default class Field extends Phaser.GameObjects.Container {
     ]
     this.goals = goalsPos.map(([x, y]) => {
       const goal = this.scene.physics.add.image(x, y, '')
-      goal.setBodySize(thickness, GOAL_WIDTH)
+      goal.setBodySize(thickness, Field.GOAL_WIDTH)
       goal.setVisible(false)
       goal.setDebugBodyColor(0xff0000)
       goal.setPushable(false)
