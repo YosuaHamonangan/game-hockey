@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "postinstall": "yarn --cwd server --production=false install",
+    "postinstall": "yarn --cwd server --production=false install && yarn --cwd client --production=false install",
     "build": "yarn --cwd server build",
     "start:server": "yarn --cwd server start"
   },
