@@ -1,7 +1,0 @@
-packages/client/.next/
-packages/client/out_publish/*
-packages/client/out_functions/*
-packages/*/dist/
-**/generated
-node_modules/
-dist
