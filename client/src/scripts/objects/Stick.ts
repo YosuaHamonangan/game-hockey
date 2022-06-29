@@ -41,7 +41,7 @@ export default class Stick extends Phaser.Physics.Arcade.Sprite {
     this.off('drag', this.onDrag, this)
   }
 
-  private onDrag(pointer: Phaser.Input.Pointer, x, y) {
+  private onDrag(pointer: Phaser.Input.Pointer, x: number, y: number) {
     this.target.set(x, y)
     this.scene.events.emit('player-drag', x, y)
   }
