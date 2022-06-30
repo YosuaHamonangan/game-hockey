@@ -3,6 +3,7 @@ import Field from '../objects/Field'
 import { client, Colyseus } from '../utils/colyseus'
 import { FieldState, PlayerSide } from '../utils/fieldState'
 import Toast from '../objects/Toast'
+import { DataChange } from '@colyseus/schema'
 
 enum SceneState {
   preparing,
@@ -43,10 +44,10 @@ export default class OnlineMultiScene extends Phaser.Scene {
       this.room.send('move', { x, y })
     })
 
-    this.events.on('hit-puck', (data) => {
-      if (data.side !== this.playerSide) return
-      // this.room.send('puck', data)
-    })
+    // this.events.on('hit-puck', (data) => {
+    //   if (data.side !== this.playerSide) return
+    //   this.room.send('puck', data)
+    // })
 
     this.joinRoom()
   }
@@ -57,6 +58,14 @@ export default class OnlineMultiScene extends Phaser.Scene {
     try {
       const room = await client.joinOrCreate<FieldState>('my_room')
       console.log('Joined room ', room.id)
+
+      room.state.puck.onChange = (changes: DataChange[]) => {
+        changes.forEach((change) => {
+          const { field, value } = change
+          this.field.puck[field] = value
+        })
+      }
+
       room.state.players.onAdd = (player) => {
         if (player.sessionId === room.sessionId) {
           const isRight = player.side === PlayerSide.right
@@ -67,6 +76,7 @@ export default class OnlineMultiScene extends Phaser.Scene {
         } else {
           this.opponentSide = player.side
           this.field.setStickColor(this.opponentSide, 0x00ff00)
+          player.onChange = this.onOpponentChange.bind(this)
         }
         if (this.playerSide !== undefined && this.opponentSide !== undefined) {
           this.start()
@@ -91,20 +101,12 @@ export default class OnlineMultiScene extends Phaser.Scene {
     this.setState(SceneState.playing)
   }
 
-  update() {
-    if (this.state === SceneState.playing) {
-      const puck = this.room.state.puck
-      this.field.puck.x = puck.x
-      this.field.puck.y = puck.y
-
-      // const player = this.room.state.players[this.playerSide]
-      // this.field.setStickPosition(this.playerSide, player.x, player.y)
-
-      const opponent = this.room.state.players[this.opponentSide]
-      if (opponent.x === undefined) return
-      this.field.setStickPosition(this.opponentSide, opponent.x, opponent.y)
-    }
-  }
+  // update() {
+  //   if (this.state === SceneState.playing) {
+  //     // const player = this.room.state.players[this.playerSide]
+  //     // this.field.setStickPosition(this.playerSide, player.x, player.y)
+  //   }
+  // }
 
   onStateChange(prvState: SceneState, newState: SceneState) {
     switch (prvState) {
@@ -124,5 +126,16 @@ export default class OnlineMultiScene extends Phaser.Scene {
       default:
         break
     }
+  }
+
+  onOpponentChange(changes: DataChange[]) {
+    changes.forEach((change) => {
+      const { field, value } = change
+      if (field === 'x') {
+        this.field.sticks[this.opponentSide].target.x = value
+      } else if (field === 'y') {
+        this.field.sticks[this.opponentSide].target.y = value
+      }
+    })
   }
 }

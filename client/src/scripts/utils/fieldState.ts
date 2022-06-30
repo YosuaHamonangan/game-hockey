@@ -1,4 +1,4 @@
-import { Schema, ArraySchema, Context, type } from '@colyseus/schema'
+import { Schema, ArraySchema, type } from '@colyseus/schema'
 
 export enum PlayerSide {
   right = 0,
