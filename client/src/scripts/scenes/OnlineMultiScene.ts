@@ -11,6 +11,9 @@ enum SceneState {
   playing,
 }
 
+const PATCH_RATE = 50 // ms
+const MIN_BUFFER_LENGTH = 2 // ms
+
 export default class OnlineMultiScene extends Phaser.Scene {
   fpsText
   field: Field
@@ -20,6 +23,8 @@ export default class OnlineMultiScene extends Phaser.Scene {
   private state = SceneState.preparing
   private toast: Toast
   private isFlipped = false
+  private stateBuffer: FieldState[] = []
+  private lastPatchTime = 0
 
   constructor() {
     super({ key: 'OnlineMultiScene' })
@@ -61,12 +66,7 @@ export default class OnlineMultiScene extends Phaser.Scene {
       const room = await client.joinOrCreate<FieldState>('my_room')
       console.log('Joined room ', room.id)
 
-      room.state.puck.onChange = (changes: DataChange[]) => {
-        changes.forEach((change) => {
-          const { field, value } = change
-          this.field.puck[field] = this.isFlipped ? -value : value
-        })
-      }
+      room.onStateChange(this.onRoomStateChange.bind(this))
 
       room.state.players.onAdd = (player) => {
         if (player.sessionId === room.sessionId) {
@@ -80,7 +80,6 @@ export default class OnlineMultiScene extends Phaser.Scene {
         } else {
           this.opponentSide = player.side
           this.field.setStickColor(PlayerSide.top, 0x00ff00)
-          player.onChange = this.onOpponentChange.bind(this)
         }
         if (this.playerSide !== undefined && this.opponentSide !== undefined) {
           this.start()
@@ -132,17 +131,39 @@ export default class OnlineMultiScene extends Phaser.Scene {
     }
   }
 
-  onOpponentChange(changes: DataChange[]) {
-    changes.forEach((change) => {
-      const { field } = change
-      let { value } = change
-      if (this.isFlipped) value = -value
+  onRoomStateChange(state: FieldState) {
+    this.stateBuffer.push(state)
+  }
 
-      if (field === 'x') {
-        this.field.sticks[PlayerSide.top].target.x = value
-      } else if (field === 'y') {
-        this.field.sticks[PlayerSide.top].target.y = value
+  update() {
+    if (this.stateBuffer.length >= MIN_BUFFER_LENGTH) {
+      const now = Date.now()
+      if (this.lastPatchTime + PATCH_RATE < now) {
+        this.consumeBuffer()
+        this.lastPatchTime = now
       }
-    })
+    }
+  }
+
+  consumeBuffer() {
+    const state = this.stateBuffer.shift()
+    if (!state) return
+
+    const puckPos = this.getAdjustedPosData(state.puck)
+    this.field.puck.x = puckPos.x
+    this.field.puck.y = puckPos.y
+
+    // const player = this.room.state.players[this.playerSide]
+    // this.field.setStickPosition(this.playerSide, player.x, player.y)
+
+    const opponent = state.players[this.opponentSide]
+    if (opponent) {
+      const opponentPos = this.getAdjustedPosData(opponent)
+      this.field.setStickPosition(PlayerSide.top, opponentPos.x, opponentPos.y)
+    }
+  }
+
+  getAdjustedPosData({ x, y }: { x: number; y: number }) {
+    return this.isFlipped ? { x: -x, y: -y } : { x, y }
   }
 }
