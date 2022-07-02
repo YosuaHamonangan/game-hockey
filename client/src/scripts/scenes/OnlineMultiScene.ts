@@ -3,7 +3,6 @@ import Field from '../objects/Field'
 import { client, Colyseus } from '../utils/colyseus'
 import { FieldState, PlayerSide } from '../utils/fieldState'
 import Toast from '../objects/Toast'
-import { DataChange } from '@colyseus/schema'
 
 enum SceneState {
   preparing,
@@ -12,7 +11,7 @@ enum SceneState {
 }
 
 const PATCH_RATE = 50 // ms
-const MIN_BUFFER_LENGTH = 2 // ms
+const MIN_BUFFER_LENGTH = 2
 
 export default class OnlineMultiScene extends Phaser.Scene {
   fpsText
@@ -50,11 +49,6 @@ export default class OnlineMultiScene extends Phaser.Scene {
       const data = this.isFlipped ? { x: -x, y: -y } : { x, y }
       this.room.send('move', data)
     })
-
-    // this.events.on('hit-puck', (data) => {
-    //   if (data.side !== this.playerSide) return
-    //   this.room.send('puck', data)
-    // })
 
     this.joinRoom()
   }
@@ -104,13 +98,6 @@ export default class OnlineMultiScene extends Phaser.Scene {
     this.setState(SceneState.playing)
   }
 
-  // update() {
-  //   if (this.state === SceneState.playing) {
-  //     // const player = this.room.state.players[this.playerSide]
-  //     // this.field.setStickPosition(this.playerSide, player.x, player.y)
-  //   }
-  // }
-
   onStateChange(prvState: SceneState, newState: SceneState) {
     switch (prvState) {
       case SceneState.waitingPlayer:
@@ -152,9 +139,6 @@ export default class OnlineMultiScene extends Phaser.Scene {
     const puckPos = this.getAdjustedPosData(state.puck)
     this.field.puck.x = puckPos.x
     this.field.puck.y = puckPos.y
-
-    // const player = this.room.state.players[this.playerSide]
-    // this.field.setStickPosition(this.playerSide, player.x, player.y)
 
     const opponent = state.players[this.opponentSide]
     if (opponent) {
