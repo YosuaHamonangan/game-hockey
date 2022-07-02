@@ -27,10 +27,10 @@ export default class Puck extends Phaser.Physics.Arcade.Sprite {
 
     this.body.setBoundsRectangle(
       new Phaser.Geom.Rectangle(
-        field.x - field.bg.width / 2 - Field.GOAL_DEPTH,
-        field.y - field.height / 2,
-        field.width + Field.GOAL_DEPTH * 2,
-        field.height
+        field.x - field.width / 2,
+        field.y - field.height / 2 - Field.GOAL_DEPTH,
+        field.width,
+        field.height + Field.GOAL_DEPTH * 2
       )
     )
   }

@@ -19,8 +19,8 @@ export default class HeadlessMultiScene extends Phaser.Scene {
     )
 
     this.field.setPlayer(true, true)
-    this.field.setStickColor(PlayerSide.right, 0x0000ff)
-    this.field.setStickColor(PlayerSide.left, 0x00ff00)
+    this.field.setStickColor(PlayerSide.bottom, 0x0000ff)
+    this.field.setStickColor(PlayerSide.top, 0x00ff00)
 
     this.game.events.on('move', this.onPlayerMove)
   }

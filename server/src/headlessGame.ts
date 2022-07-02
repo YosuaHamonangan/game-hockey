@@ -19,8 +19,8 @@ function shutdown() {
 import 'phaser'
 import HeadlessMultiScene from '../../client/src/scripts/scenes/HeadlessMultiScene'
 
-const DEFAULT_WIDTH = 1280
-const DEFAULT_HEIGHT = 720
+const DEFAULT_WIDTH = 720
+const DEFAULT_HEIGHT = 1280
 
 const config = {
   type: Phaser.HEADLESS,

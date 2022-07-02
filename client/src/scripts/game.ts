@@ -4,8 +4,8 @@ import MenuScene from './scenes/MenuScene'
 import PreloadScene from './scenes/preloadScene'
 import OfflineMultiScene from './scenes/OfflineMultiScene'
 
-const DEFAULT_WIDTH = 1280
-const DEFAULT_HEIGHT = 720
+const DEFAULT_WIDTH = 720
+const DEFAULT_HEIGHT = 1280
 
 const config = {
   type: Phaser.AUTO,

@@ -1,3 +1,7 @@
+import { PlayerSide } from '../utils/fieldState'
+import Field from './Field'
+import Puck from './Puck'
+
 const Vector2 = Phaser.Math.Vector2
 
 export default class Stick extends Phaser.Physics.Arcade.Sprite {
@@ -7,18 +11,41 @@ export default class Stick extends Phaser.Physics.Arcade.Sprite {
   target: Phaser.Math.Vector2
 
   private isControlable = false
+  public isBottom: boolean
 
-  constructor(scene: Phaser.Scene, x: number, y: number) {
+  constructor(
+    private field: Field,
+    x: number,
+    y: number,
+    private side: PlayerSide
+  ) {
+    const { scene } = field
     super(scene, x, y, 'stick')
 
-    scene.physics.add.existing(this)
-    this.body.setCircle(this.width / 2)
-    this.setCollideWorldBounds(true)
+    this.isBottom = side === PlayerSide.bottom
 
+    this.initPhysics()
     this.setScale(Stick.size / this.width)
 
     this.target = new Vector2(x, y)
     this.scene.events.on('update', this.update, this)
+  }
+
+  initPhysics() {
+    this.scene.physics.add.existing(this)
+    this.body.setCircle(this.width / 2)
+    this.setCollideWorldBounds(true)
+
+    const { field, isBottom } = this
+
+    this.body.setBoundsRectangle(
+      new Phaser.Geom.Rectangle(
+        field.x - field.width / 2,
+        field.y - (isBottom ? Puck.radius : field.height / 2),
+        field.width,
+        field.height / 2 + Puck.radius
+      )
+    )
   }
 
   public setControllable(isControlable: boolean) {

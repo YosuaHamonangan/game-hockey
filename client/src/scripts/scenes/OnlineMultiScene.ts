@@ -19,6 +19,7 @@ export default class OnlineMultiScene extends Phaser.Scene {
   private opponentSide: PlayerSide
   private state = SceneState.preparing
   private toast: Toast
+  private isFlipped = false
 
   constructor() {
     super({ key: 'OnlineMultiScene' })
@@ -41,7 +42,8 @@ export default class OnlineMultiScene extends Phaser.Scene {
     this.fpsText = new FpsText(this)
 
     this.events.on('player-drag', (x, y) => {
-      this.room.send('move', { x, y })
+      const data = this.isFlipped ? { x: -x, y: -y } : { x, y }
+      this.room.send('move', data)
     })
 
     // this.events.on('hit-puck', (data) => {
@@ -62,20 +64,22 @@ export default class OnlineMultiScene extends Phaser.Scene {
       room.state.puck.onChange = (changes: DataChange[]) => {
         changes.forEach((change) => {
           const { field, value } = change
-          this.field.puck[field] = value
+          this.field.puck[field] = this.isFlipped ? -value : value
         })
       }
 
       room.state.players.onAdd = (player) => {
         if (player.sessionId === room.sessionId) {
-          const isRight = player.side === PlayerSide.right
-          this.field.setPlayer(isRight, !isRight)
+          if (player.side === PlayerSide.top) {
+            this.isFlipped = true
+          }
 
+          this.field.setPlayer(true, false)
           this.playerSide = player.side
-          this.field.setStickColor(this.playerSide, 0x0000ff)
+          this.field.setStickColor(PlayerSide.bottom, 0x0000ff)
         } else {
           this.opponentSide = player.side
-          this.field.setStickColor(this.opponentSide, 0x00ff00)
+          this.field.setStickColor(PlayerSide.top, 0x00ff00)
           player.onChange = this.onOpponentChange.bind(this)
         }
         if (this.playerSide !== undefined && this.opponentSide !== undefined) {
@@ -130,11 +134,14 @@ export default class OnlineMultiScene extends Phaser.Scene {
 
   onOpponentChange(changes: DataChange[]) {
     changes.forEach((change) => {
-      const { field, value } = change
+      const { field } = change
+      let { value } = change
+      if (this.isFlipped) value = -value
+
       if (field === 'x') {
-        this.field.sticks[this.opponentSide].target.x = value
+        this.field.sticks[PlayerSide.top].target.x = value
       } else if (field === 'y') {
-        this.field.sticks[this.opponentSide].target.y = value
+        this.field.sticks[PlayerSide.top].target.y = value
       }
     })
   }

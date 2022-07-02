@@ -1,12 +1,12 @@
 import { Schema, ArraySchema, type } from '@colyseus/schema'
 
 export enum PlayerSide {
-  right = 0,
-  left = 1,
+  bottom = 0,
+  top = 1,
 }
 
 export function getOppositeSide(side: PlayerSide): PlayerSide {
-  return side === PlayerSide.right ? PlayerSide.left : PlayerSide.right
+  return side === PlayerSide.bottom ? PlayerSide.top : PlayerSide.bottom
 }
 
 export class PuckState extends Schema {
